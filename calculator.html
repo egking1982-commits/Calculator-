@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DIGO PHARAONIC 0.07 PRO SYSTEM</title>
+  <style>
+    body {
+      margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;
+      background: radial-gradient(circle at top, #1a1208, #000);
+      font-family: "Cinzel", "Trajan Pro", serif; overflow: hidden;
+    }
+    .calculator {
+      width: 360px; padding: 22px; border-radius: 28px;
+      background: radial-gradient(circle at top, rgba(255,255,255,.08), rgba(0,0,0,.9)),
+                  linear-gradient(145deg, #5a4327, #2d1f11);
+      box-shadow: inset 0 0 70px rgba(0,0,0,.95), 0 40px 80px rgba(0,0,0,.95);
+      color: #e6c77a;
+    }
+    .logo { text-align: center; margin-bottom: 15px; }
+    .eye { font-size: 42px; text-shadow: 0 0 10px #000; cursor: default; }
+    .brand {
+      font-size: 32px; letter-spacing: 4px;
+      background: linear-gradient(145deg, #f6e27a, #b8892d);
+      -webkit-background-clip: text; color: transparent; font-weight: bold;
+    }
+
+    .display {
+      background: rgba(0,0,0,.75); padding: 20px; border-radius: 16px;
+      box-shadow: inset 0 0 35px rgba(0,0,0,.95); min-height: 80px;
+    }
+    #exp {
+      font-size: 16px; opacity: .75; min-height: 20px;
+      text-align: left; direction: ltr; margin-bottom: 5px; color: #f2d68f;
+      word-break: break-all;
+    }
+    #res {
+      font-size: 36px; text-align: right; overflow: hidden;
+      font-weight: bold; color: #f6e27a; text-shadow: 0 0 5px rgba(246, 226, 122, 0.3);
+      word-break: break-all;
+    }
+
+    .keys { margin-top: 22px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    button {
+      height: 58px; border: none; border-radius: 14px; font-size: 20px; color: #f2d68f; cursor: pointer;
+      background: linear-gradient(rgba(255,255,255,.1), rgba(0,0,0,.6)), linear-gradient(145deg, #6b5232, #3a2614);
+      box-shadow: inset 0 4px 4px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,.8);
+      transition: all 0.1s ease;
+      user-select: none;
+    }
+    button:active { transform: scale(0.92); filter: brightness(1.3); }
+
+    .eq { grid-column: span 2; background: linear-gradient(145deg, #f6e27a, #b8892d); color: #000; font-weight: bold; font-size: 24px; }
+    .ac { background: linear-gradient(rgba(200,50,50,.3), rgba(0,0,0,.6)); color: #ff9999; }
+    .c  { background: linear-gradient(rgba(200,120,50,.22), rgba(0,0,0,.6)); color: #ffd2a6; }
+    .del { color: #ff9999; }
+
+    .footer { margin-top: 22px; text-align: center; }
+    .footer-top { font-size: 13px; color: #b8892d; margin-bottom: 6px; letter-spacing: 1px; }
+    .footer-main { font-size: 19px; font-weight: bold; color: #f6e27a; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+  </style>
+</head>
+<body>
+
+<div class="calculator">
+  <div class="logo">
+    <div class="eye">𓂀</div>
+    <div class="brand">BIDO</div>
+  </div>
+
+  <div class="display">
+    <div id="exp" aria-label="Expression"></div>
+    <div id="res" aria-label="Result">0</div>
+  </div>
+
+  <div class="keys" aria-label="Calculator keys">
+    <!-- صف وظائف -->
+    <button class="ac" type="button" aria-label="All clear">AC</button>
+    <button class="c" type="button" aria-label="Clear entry">C</button>
+    <button type="button" aria-label="Toggle sign">±</button>
+    <button class="del" type="button" aria-label="Backspace">⌫</button>
+
+    <!-- صف عمليات -->
+    <button type="button" aria-label="Percent">%</button>
+    <button type="button" aria-label="Divide">÷</button>
+    <button type="button" aria-label="Multiply">×</button>
+    <button type="button" aria-label="Minus">−</button>
+
+    <!-- أرقام -->
+    <button type="button">7</button><button type="button">8</button><button type="button">9</button>
+    <button type="button" aria-label="Plus">+</button>
+
+    <button type="button">4</button><button type="button">5</button><button type="button">6</button>
+    <button type="button">00</button>
+
+    <button type="button">1</button><button type="button">2</button><button type="button">3</button>
+    <button type="button" aria-label="Decimal point">.</button>
+
+    <!-- زر القيمة الجديدة 0.03 ضمن الأرقام -->
+    <button type="button" aria-label="Quick value 0.03">0.03</button>
+    <button type="button">0</button>
+    <button class="eq" type="button" aria-label="Equals">=</button>
+  </div>
+
+  <div class="footer">
+    <div class="footer-top">DESIGN BY : MAHMOUD BIDEAR</div>
+    <div class="footer-main">طورها بلمسة ملكية | أ. محمود بدير</div>
+  </div>
+</div>
+
+<script>
+  let data = "";
+
+  const expDiv = document.getElementById("exp");
+  const resDiv = document.getElementById("res");
+
+  const OPS = new Set(["+", "−", "×", "÷"]);
+  const isDigit = (c) => /[0-9]/.test(c);
+
+  function formatNumber(n) {
+    if (!isFinite(n)) return "لا يمكن القسمة على 0";
+    const rounded = Number(n.toFixed(10));
+    return (Object.is(rounded, -0) ? 0 : rounded).toString();
+  }
+
+  function updateDisplay() {
+    expDiv.innerText = data;
+    const preview = tryEvaluate(data);
+    if (preview.ok) resDiv.innerText = formatNumber(preview.value);
+    else if (!data) resDiv.innerText = "0";
+  }
+
+  function lastIndexOfAnyOperator(expr) {
+    for (let i = expr.length - 1; i >= 0; i--) {
+      if (OPS.has(expr[i])) return i;
+    }
+    return -1;
+  }
+
+  function getCurrentChunk(expr) {
+    const idx = lastIndexOfAnyOperator(expr);
+    return expr.slice(idx + 1);
+  }
+
+  function replaceCurrentChunk(newChunk) {
+    const idx = lastIndexOfAnyOperator(data);
+    data = data.slice(0, idx + 1) + newChunk;
+  }
+
+  function canAddDot() {
+    const chunk = getCurrentChunk(data);
+    if (chunk === "" || chunk === "−") return true;
+    return !chunk.includes(".");
+  }
+
+  function canAddPercent() {
+    if (!data) return false;
+    return isDigit(data.slice(-1));
+  }
+
+  // C: مسح آخر خانة من الرقم الحالي (وليس مسح الرقم كله)
+  function clearEntry() {
+    if (!data) return;
+
+    const last = data.slice(-1);
+
+    // لو آخر شيء عامل: احذفه
+    if (OPS.has(last)) {
+      data = data.slice(0, -1);
+      return;
+    }
+
+    const idx = lastIndexOfAnyOperator(data);
+    const prefix = data.slice(0, idx + 1);
+    let chunk = data.slice(idx + 1);
+
+    // لو آخر شيء %: احذف % فقط
+    if (chunk.endsWith("%")) {
+      chunk = chunk.slice(0, -1);
+      data = prefix + chunk;
+      return;
+    }
+
+    // احذف آخر خانة/رمز من chunk
+    chunk = chunk.slice(0, -1);
+
+    // لو أصبح فارغ أو سالب فقط أو 0. فقط -> ارجع للبريفكس
+    if (chunk === "" || chunk === "−" || chunk === "0.") {
+      data = prefix;
+      return;
+    }
+
+    data = prefix + chunk;
+  }
+
+  function toggleSign() {
+    if (!data) { data = "−"; updateDisplay(); return; }
+
+    const idx = lastIndexOfAnyOperator(data);
+    let chunk = data.slice(idx + 1);
+
+    if (chunk === "") {
+      data += "−";
+      updateDisplay();
+      return;
+    }
+
+    if (chunk.startsWith("−")) {
+      chunk = chunk.slice(1);
+      replaceCurrentChunk(chunk);
+      updateDisplay();
+      return;
+    }
+
+    replaceCurrentChunk("−" + chunk);
+    updateDisplay();
+  }
+
+  function appendNumberString(numStr) {
+    // إدخال قيمة جاهزة مثل "0.03" مع قواعد:
+    // لو الرقم الحالي يبدأ بـ 0 بدون نقطة، نستبدله بدل الإضافة
+    const chunk = getCurrentChunk(data);
+    if (chunk === "0" && !chunk.includes(".")) {
+      data = data.slice(0, -1) + numStr;
+    } else if (chunk === "" || chunk === "−") {
+      data += numStr;
+    } else {
+      data += numStr;
+    }
+    updateDisplay();
+  }
+
+  function handleInput(v) {
+    const lastChar = data.slice(-1);
+
+    if (v === "AC") {
+      data = "";
+      expDiv.innerText = "";
+      resDiv.innerText = "0";
+      return;
+    }
+
+    if (v === "C") {
+      clearEntry();
+      updateDisplay();
+      return;
+    }
+
+    if (v === "±") {
+      toggleSign();
+      return;
+    }
+
+    if (v === "⌫") {
+      data = data.slice(0, -1);
+      updateDisplay();
+      return;
+    }
+
+    if (v === "=") {
+      const out = tryEvaluate(data);
+      if (out.ok) {
+        const formatted = formatNumber(out.value);
+        resDiv.innerText = formatted;
+        data = formatted;
+        expDiv.innerText = "";
+      } else {
+        resDiv.innerText = out.message || "خطأ";
+        data = "";
+        expDiv.innerText = "";
+      }
+      return;
+    }
+
+    // زر 0.03 (قيمة جاهزة)
+    if (v === "0.03") {
+      appendNumberString("0.03");
+      return;
+    }
+
+    // Digits and 00
+    if (/[0-9]/.test(v) || v === "00") {
+      const chunk = getCurrentChunk(data);
+
+      if (v === "00") {
+        if (chunk === "" || chunk === "−") {
+          data += "0";
+          updateDisplay();
+          return;
+        }
+      }
+
+      if (chunk === "0" && v === "0") return;
+      if (chunk === "0" && v !== "0" && v !== "00" && !chunk.includes(".")) {
+        data = data.slice(0, -1) + v;
+      } else {
+        data += v;
+      }
+
+      updateDisplay();
+      return;
+    }
+
+    // Dot
+    if (v === ".") {
+      if (!canAddDot()) return;
+      const chunk = getCurrentChunk(data);
+      if (chunk === "" || chunk === "−") data += "0.";
+      else data += ".";
+      updateDisplay();
+      return;
+    }
+
+    // Percent
+    if (v === "%") {
+      if (!canAddPercent()) return;
+      data += "%";
+      updateDisplay();
+      return;
+    }
+
+    // Operators
+    if (OPS.has(v)) {
+      if (!data) {
+        if (v === "−") { data = "−"; updateDisplay(); }
+        return;
+      }
+      if (OPS.has(lastChar)) {
+        data = data.slice(0, -1) + v;
+        updateDisplay();
+        return;
+      }
+      if (lastChar === ".") return;
+      data += v;
+      updateDisplay();
+      return;
+    }
+  }
+
+  // === Parsing without eval + calculator-like percent ===
+  function tokenize(expr) {
+    const tokens = [];
+    let i = 0;
+
+    function peek() { return expr[i]; }
+    function next() { return expr[i++]; }
+
+    while (i < expr.length) {
+      const ch = peek();
+      if (ch === " ") { i++; continue; }
+
+      if (ch === "+") { tokens.push({type:"op", value:"+"}); i++; continue; }
+      if (ch === "×") { tokens.push({type:"op", value:"*"}); i++; continue; }
+      if (ch === "÷") { tokens.push({type:"op", value:"/"}); i++; continue; }
+
+      if (ch === "−") {
+        const prev = tokens[tokens.length - 1];
+        const isUnary = !prev || prev.type === "op";
+        if (isUnary) {
+          i++;
+          let numStr = "-";
+          if (peek() === ".") numStr += "0";
+          while (i < expr.length) {
+            const c = peek();
+            if (isDigit(c) || c === ".") numStr += next();
+            else break;
+          }
+          if (numStr === "-" || numStr === "-0." || numStr === "-0") throw new Error("Bad number");
+          tokens.push({type:"num", value:Number(numStr)});
+          continue;
+        } else {
+          tokens.push({type:"op", value:"-"}); i++; continue;
+        }
+      }
+
+      if (isDigit(ch) || ch === ".") {
+        let numStr = "";
+        if (ch === ".") numStr = "0";
+        while (i < expr.length) {
+          const c = peek();
+          if (isDigit(c) || c === ".") numStr += next();
+          else break;
+        }
+        tokens.push({type:"num", value:Number(numStr)});
+        continue;
+      }
+
+      if (ch === "%") {
+        const prev = tokens[tokens.length - 1];
+        if (!prev || prev.type !== "num") throw new Error("Bad percent");
+        prev.rawPercent = true;
+        i++;
+        continue;
+      }
+
+      throw new Error("Unknown char");
+    }
+
+    if (tokens.length && tokens[tokens.length - 1].type === "op") throw new Error("Ends with op");
+    return applyCalculatorPercent(tokens);
+  }
+
+  function applyCalculatorPercent(tokens) {
+    const out = tokens.map(t => ({...t}));
+
+    for (let i = 0; i < out.length; i++) {
+      const t = out[i];
+      if (t.type === "num" && t.rawPercent) {
+        const opTok = out[i - 1];
+        const leftTok = out[i - 2];
+        const b = t.value / 100;
+
+        // 10% => 0.1
+        if (!opTok || opTok.type !== "op") {
+          t.value = b; delete t.rawPercent; continue;
+        }
+
+        // A * B%  => A * (B/100)
+        // A / B%  => A / (B/100)
+        if (opTok.value === "*" || opTok.value === "/") {
+          t.value = b; delete t.rawPercent; continue;
+        }
+
+        // A + B% => A + (A*B/100)
+        // A - B% => A - (A*B/100)
+        if ((opTok.value === "+" || opTok.value === "-") && leftTok && leftTok.type === "num") {
+          t.value = leftTok.value * b;
+          delete t.rawPercent;
+          continue;
+        }
+
+        t.value = b; delete t.rawPercent;
+      }
+    }
+
+    return out;
+  }
+
+  function toRPN(tokens) {
+    const out = [];
+    const stack = [];
+    const prec = { "+":1, "-":1, "*":2, "/":2 };
+
+    for (const t of tokens) {
+      if (t.type === "num") out.push(t);
+      else if (t.type === "op") {
+        while (stack.length) {
+          const top = stack[stack.length - 1];
+          if (top.type === "op" && prec[top.value] >= prec[t.value]) out.push(stack.pop());
+          else break;
+        }
+        stack.push(t);
+      }
+    }
+    while (stack.length) out.push(stack.pop());
+    return out;
+  }
+
+  function evalRPN(rpn) {
+    const st = [];
+    for (const t of rpn) {
+      if (t.type === "num") st.push(t.value);
+      else {
+        const b = st.pop();
+        const a = st.pop();
+        if (a === undefined || b === undefined) throw new Error("Bad expr");
+        let r;
+        switch (t.value) {
+          case "+": r = a + b; break;
+          case "-": r = a - b; break;
+          case "*": r = a * b; break;
+          case "/": r = a / b; break;
+          default: throw new Error("Bad op");
+        }
+        st.push(r);
+      }
+    }
+    if (st.length !== 1) throw new Error("Bad expr");
+    return st[0];
+  }
+
+  function tryEvaluate(expr) {
+    if (!expr) return { ok:false, message:"" };
+    try {
+      const tokens = tokenize(expr);
+      const rpn = toRPN(tokens);
+      const value = evalRPN(rpn);
+      if (!isFinite(value)) return { ok:false, message:"لا يمكن القسمة على 0" };
+      return { ok:true, value };
+    } catch (e) {
+      return { ok:false, message:"" };
+    }
+  }
+
+  // Bindings
+  document.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => handleInput(btn.innerText.trim()));
+  });
+
+  document.addEventListener("keydown", e => {
+    if (/[0-9]/.test(e.key)) return handleInput(e.key);
+    if (e.key === ".") return handleInput(".");
+    if (e.key === "+") return handleInput("+");
+    if (e.key === "-") return handleInput("−");
+    if (e.key === "*") return handleInput("×");
+    if (e.key === "/") { e.preventDefault(); return handleInput("÷"); }
+    if (e.key === "%") return handleInput("%");
+    if (e.key === "Enter") { e.preventDefault(); return handleInput("="); }
+    if (e.key === "Backspace") return handleInput("⌫");
+    if (e.key === "Escape") return handleInput("AC");
+    if (e.key === "Delete") return handleInput("C");
+  });
+
+  updateDisplay();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "short_name": "BIDO",
+  "name": "DIGO PHARAONIC 0.07 PRO SYSTEM",
+  "description": "آلة حاسبة ملكية بتصميم فرعوني متطور",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2344/2344132.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#1a1208",
+  "display": "standalone",
+  "scope": "./",
+  "theme_color": "#b8892d",
+  "orientation": "portrait-primary"
+}
