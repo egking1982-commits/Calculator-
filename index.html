@@ -1,376 +1,366 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DIGO PHARAONIC 0.07 PRO SYSTEM</title>
-  
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#b8892d">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="BIDO">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2344/2344132.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>BrushManager Pro - V3.0.0 Ultimate</title>
 
-  <style>
-    body {
-      margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;
-      background: radial-gradient(circle at top, #1a1208, #000);
-      font-family: "Cinzel", "Trajan Pro", serif; overflow: hidden;
-    }
-    .calculator {
-      width: 360px; padding: 22px; border-radius: 28px;
-      background: radial-gradient(circle at top, rgba(255,255,255,.08), rgba(0,0,0,.9)),
-                  linear-gradient(145deg, #5a4327, #2d1f11);
-      box-shadow: inset 0 0 70px rgba(0,0,0,.95), 0 40px 80px rgba(0,0,0,.95);
-      color: #e6c77a;
-    }
-    .logo { text-align: center; margin-bottom: 15px; }
-    .eye { font-size: 42px; text-shadow: 0 0 10px #000; cursor: default; }
-    .brand {
-      font-size: 32px; letter-spacing: 4px;
-      background: linear-gradient(145deg, #f6e27a, #b8892d);
-      -webkit-background-clip: text; color: transparent; font-weight: bold;
-    }
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4361ee">
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    .display {
-      background: rgba(0,0,0,.75); padding: 20px; border-radius: 16px;
-      box-shadow: inset 0 0 35px rgba(0,0,0,.95); min-height: 80px;
-    }
-    #exp {
-      font-size: 16px; opacity: .75; min-height: 20px;
-      text-align: left; direction: ltr; margin-bottom: 5px; color: #f2d68f;
-      word-break: break-all;
-    }
-    #res {
-      font-size: 36px; text-align: right; overflow: hidden;
-      font-weight: bold; color: #f6e27a; text-shadow: 0 0 5px rgba(246, 226, 122, 0.3);
-      word-break: break-all;
-    }
+    <style>
+        :root { --primary: #4361ee; --success: #2ec4b6; --danger: #f72585; --bg: #f0f2f5; --dark: #2d3436; --warning: #ff9f43; --supervisor: #6c5ce7; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 10px; padding-bottom: 60px; }
+        .card { background: #fff; border-radius: 18px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); margin-bottom: 15px; }
+        
+        .log-container { max-height: 200px; overflow-y: auto; background: #1e272e; color: #0be881; border-radius: 10px; padding: 10px; font-family: monospace; font-size: 11px; }
+        .log-row { border-bottom: 1px solid #3d3d3d; padding: 4px 0; display: flex; justify-content: space-between; }
 
-    .keys { margin-top: 22px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    button {
-      height: 58px; border: none; border-radius: 14px; font-size: 20px; color: #f2d68f; cursor: pointer;
-      background: linear-gradient(rgba(255,255,255,.1), rgba(0,0,0,.6)), linear-gradient(145deg, #6b5232, #3a2614);
-      box-shadow: inset 0 4px 4px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,.8);
-      transition: all 0.1s ease;
-      user-select: none;
-    }
-    button:active { transform: scale(0.92); filter: brightness(1.3); }
+        table { width: 100%; border-collapse: collapse; background: white; min-width: 600px; }
+        th { background: var(--dark); color: white; padding: 12px; font-size: 13px; }
+        td { padding: 5px; border: 1px solid #ddd; text-align: center; }
+        input, select { width: 92%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-size: 14px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; margin: 5px; }
+        
+        #chatBox { position: fixed; bottom: 80px; left: 20px; width: 340px; height: 500px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: none; flex-direction: column; z-index: 1000; overflow: hidden; border: 1px solid #ddd; }
+        #chatMessages { flex: 1; padding: 10px; overflow-y: auto; background: #f0f2f5; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 85%; padding: 10px; border-radius: 15px; font-size: 13px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .msg.sent { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 2px; }
+        .msg.received { align-self: flex-start; background: white; color: #000; border-bottom-left-radius: 2px; }
+        
+        #chatToggle { position: fixed; bottom: 80px; left: 20px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: none; justify-content: center; align-items: center; color: white; font-size: 24px; cursor: pointer; z-index: 999; }
+        .footer-rights { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--dark); color: white; text-align: center; padding: 10px 0; font-size: 12px; z-index: 998; }
 
-    .eq { grid-column: span 2; background: linear-gradient(145deg, #f6e27a, #b8892d); color: #000; font-weight: bold; font-size: 24px; }
-    .ac { background: linear-gradient(rgba(200,50,50,.3), rgba(0,0,0,.6)); color: #ff9999; }
-    .c  { background: linear-gradient(rgba(200,120,50,.22), rgba(0,0,0,.6)); color: #ffd2a6; }
-    .del { color: #ff9999; }
+        .google-btn { background: #fff; color: #757575; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 10px; }
 
-    .footer { margin-top: 22px; text-align: center; }
-    .footer-top { font-size: 13px; color: #b8892d; margin-bottom: 6px; letter-spacing: 1px; }
-    .footer-main { font-size: 19px; font-weight: bold; color: #f6e27a; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
-  </style>
+        @media print { 
+            .noPrint, .footer-rights, #chatToggle { display: none !important; } 
+            .card { box-shadow: none; border: 1px solid #000; margin: 0; padding: 10px; }
+            body { background: white; padding: 0; }
+        }
+    </style>
 </head>
 <body>
 
-<div class="calculator">
-  <div class="logo">
-    <div class="eye">𓂀</div>
-    <div class="brand">BIDO</div>
-  </div>
+<div id="loginBox" class="card" style="max-width:400px; margin:50px auto; text-align:center;">
+    <h2 style="color:var(--primary);">🛡️ BrushManager Ultimate</h2>
+    <p style="font-size: 12px; color: #666;">نسخة المدير والمشرف العام</p>
+    <input id="username" type="text" placeholder="اسم المستخدم"><br><br>
+    <input id="pass" type="password" placeholder="كلمة المرور"><br><br>
+    <button onclick="login()" class="btn" style="background:var(--primary); width:100%">دخول آمن</button>
+    
+    <div style="margin: 15px 0; color: #999; font-size: 12px;">أو عبر الهوية الذكية</div>
+    <button onclick="loginWithGoogle()" class="btn google-btn">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
+        دخول Google Passkey
+    </button>
+</div>
 
-  <div class="display">
-    <div id="exp" aria-label="Expression"></div>
-    <div id="res" aria-label="Result">0</div>
-  </div>
+<div id="app" style="display:none;">
+    <div class="card noPrint" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>🟢 <span id="connText">متصل</span> | مرحباً: <b id="welcomeUser"></b> <span id="roleBadge"></span></div>
+        <div>
+            <button onclick="printReport()" class="btn" style="background:var(--dark)">🖨️ طباعة PDF</button>
+            <button onclick="location.reload()" class="btn" style="background:var(--danger)">خروج</button>
+        </div>
+    </div>
 
-  <div class="keys" aria-label="Calculator keys">
-    <button class="ac" type="button">AC</button>
-    <button class="c" type="button">C</button>
-    <button type="button">±</button>
-    <button class="del" type="button">⌫</button>
+    <div id="adminArea" class="noPrint" style="display:none;">
+        <div class="card" style="border: 2px solid var(--warning);">
+            <h4 style="margin:0 0 10px 0; color:var(--dark);">📜 سجل نشاط النظام (Audit Log)</h4>
+            <div id="auditLogs" class="log-container"></div>
+            <div style="margin-top:10px;">
+                <button onclick="clearLogs()" id="clearLogsBtn" class="btn" style="background:var(--danger); font-size:11px;">🗑️ مسح السجل</button>
+                <button onclick="printLogs()" class="btn" style="background:var(--primary); font-size:11px;">📋 طباعة السجل</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h4 style="color:var(--danger); margin:0 0 10px 0;">🛠️ إدارة الموظفين</h4>
+            <div style="display:flex; gap:5px; margin-bottom:15px;">
+                <input id="newWorkerName" type="text" placeholder="اسم الموظف">
+                <input id="newWorkerPass" type="text" placeholder="الباسورد">
+                <button onclick="addNewWorker()" class="btn" style="background:var(--success)">إضافة</button>
+            </div>
+            <div id="usersList"></div>
+        </div>
+    </div>
 
-    <button type="button">%</button>
-    <button type="button">÷</button>
-    <button type="button">×</button>
-    <button type="button">−</button>
+    <div class="card noPrint" style="display:flex; gap:10px; flex-wrap:wrap;">
+        <div style="flex:1;"><label>التاريخ</label><input type="date" id="daySelect" onchange="switchContext()"></div>
+        <div style="flex:1;"><label>الوردية</label>
+            <select id="shiftSelect" onchange="switchContext()">
+                <option value="وردية_1">الأولى</option>
+                <option value="وردية_2">الثانية</option>
+                <option value="وردية_3">الثالثة</option>
+            </select>
+        </div>
+        <div style="flex:1;"><label>الموظف</label><select id="userSelect" onchange="switchContext()"></select></div>
+    </div>
 
-    <button type="button">7</button><button type="button">8</button><button type="button">9</button>
-    <button type="button">+</button>
+    <div id="printableArea" class="card">
+        <div class="onlyPrint" style="text-align:center; display:none;">
+            <h2>تقرير إنتاج مصنع الفرش</h2>
+            <p id="printInfo"></p>
+        </div>
+        <div style="display:flex; justify-content:space-around; margin-bottom:15px; background:var(--bg); padding:10px; border-radius:10px;">
+            <div>إجمالي القطع: <b id="sumTotal" style="color:var(--primary); font-size:18px;">0</b></div>
+            <div>إجمالي المقاسات: <b id="sumSizes" style="color:var(--success); font-size:18px;">0</b></div>
+        </div>
+        <div style="overflow-x:auto;">
+            <table id="mainTable">
+                <thead><tr><th>الفرشة</th><th>الطبقات</th><th>المقاس</th><th>المجموع</th><th>الخط</th><th>ملاحظات</th><th class="noPrint">✖</th></tr></thead>
+                <tbody id="tbody" oninput="liveUpdate()"></tbody>
+            </table>
+        </div>
+        <br>
+        <button onclick="addRow()" class="btn noPrint" style="background:var(--success); width:100%">➕ إضافة سطر جديد</button>
+    </div>
 
-    <button type="button">4</button><button type="button">5</button><button type="button">6</button>
-    <button type="button">00</button>
+    <div class="card noPrint" style="text-align:center;">
+        <button onclick="cloudBackup()" class="btn" style="background:#0984e3;">📤 رفع أرشيف المصنع</button>
+        <button onclick="cloudRestore()" id="restoreBtn" class="btn" style="background:#6c5ce7;">📥 استعادة الأرشيف</button>
+    </div>
+</div>
 
-    <button type="button">1</button><button type="button">2</button><button type="button">3</button>
-    <button type="button">.</button>
+<div id="chatToggle" onclick="toggleChat()">💬</div>
+<div id="chatBox">
+    <div style="background:var(--primary); color:white; padding:12px; font-weight:bold;">
+        <span>💬 المراسلة الخاصة</span>
+        <select id="chatRecipient" style="width:100%; margin-top:5px; height:30px; font-size:11px;"></select>
+    </div>
+    <div id="chatMessages"></div>
+    <div style="padding:10px; border-top:1px solid #eee; display:flex; gap:5px;">
+        <input type="text" id="chatMsgInput" placeholder="اكتب..." onkeypress="if(event.key==='Enter') sendChatMessage()" style="flex:1;">
+        <button onclick="sendChatMessage()" style="background:var(--primary); color:white; border:none; border-radius:50%; width:35px; height:35px;">✈</button>
+    </div>
+</div>
 
-    <button type="button">0.03</button>
-    <button type="button">0</button>
-    <button class="eq" type="button">=</button>
-  </div>
-
-  <div class="footer">
-    <div class="footer-top">DESIGN BY : MAHMOUD BIDEAR</div>
-    <div class="footer-main">طورها بلمسة ملكية | أ. محمود بدير</div>
-  </div>
+<div class="footer-rights">
+    جميع حقوق المالكية محفوظة (محمود بدير) © 2026 - BrushManager Pro V3.0.0
 </div>
 
 <script>
-  // --- تسجيل الـ Service Worker لتعمل الحاسبة بدون إنترنت ---
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('SW Registered'))
-        .catch(err => console.log('SW Registration Failed', err));
+// تهيئة Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyDDhfiJkDvafZQB57DA9jsF7R3iF8jokQI",
+    authDomain: "brushmanager-98d94.firebaseapp.com",
+    databaseURL: "https://brushmanager-98d94-default-rtdb.firebaseio.com",
+    projectId: "brushmanager-98d94",
+    appId: "1:319953455236:web:e7e93bf6073da63f1b1ad1"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
+
+let currentUser, activeUser, activeDay, activeShift;
+let users = {};
+
+const defaultUsers = {
+    "admin": { "pass": btoa("123"), "role": "super" },
+    "mahmoudbidear": { "pass": btoa("1"), "role": "supervisor" }
+};
+
+// 1. الدخول التقليدي
+function login() {
+    let u = document.getElementById('username').value.trim();
+    let p = document.getElementById('pass').value;
+    db.ref('users').once('value', snap => {
+        users = snap.val() || defaultUsers;
+        if (users[u] && users[u].pass === btoa(p)) {
+            currentUser = activeUser = u;
+            startApp();
+            logSystem("دخول", "تقليدي");
+        } else Swal.fire('فشل', 'بيانات خاطئة', 'error');
     });
-  }
+}
 
-  // --- كود منطق الآلة الحاسبة ---
-  let data = "";
-  const expDiv = document.getElementById("exp");
-  const resDiv = document.getElementById("res");
-  const OPS = new Set(["+", "−", "×", "÷"]);
-  const isDigit = (c) => /[0-9]/.test(c);
+// 2. الدخول عبر Google (Passkey)
+function loginWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).then((result) => {
+        const user = result.user;
+        const displayName = user.displayName || "User";
+        
+        // إذا كان الاسم يحتوي على "Mahmoud" يتم اعتباره مشرف تلقائياً
+        if (displayName.toLowerCase().includes("mahmoud")) {
+            currentUser = activeUser = "mahmoudbidear";
+            users[currentUser] = { role: "supervisor" };
+        } else {
+            currentUser = activeUser = displayName.replace(/\s+/g, '_');
+            users[currentUser] = { role: "user" };
+        }
+        
+        startApp();
+        logSystem("دخول Passkey", `جوجل: ${user.email}`);
+    }).catch((error) => {
+        Swal.fire('خطأ', 'فشل التحقق من الهوية الرقمية', 'error');
+    });
+}
 
-  function formatNumber(n) {
-    if (!isFinite(n)) return "لا يمكن القسمة على 0";
-    const rounded = Number(n.toFixed(10));
-    return (Object.is(rounded, -0) ? 0 : rounded).toString();
-  }
-
-  function updateDisplay() {
-    expDiv.innerText = data;
-    const preview = tryEvaluate(data);
-    if (preview.ok) resDiv.innerText = formatNumber(preview.value);
-    else if (!data) resDiv.innerText = "0";
-  }
-
-  function lastIndexOfAnyOperator(expr) {
-    for (let i = expr.length - 1; i >= 0; i--) {
-      if (OPS.has(expr[i])) return i;
+function startApp() {
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('chatToggle').style.display = 'flex';
+    document.getElementById('welcomeUser').innerText = currentUser;
+    
+    const role = users[currentUser]?.role || 'user';
+    const badge = document.getElementById('roleBadge');
+    
+    if(role === 'super' || role === 'supervisor') {
+        document.getElementById('adminArea').style.display = 'block';
+        badge.innerHTML = `<small style="background:var(--supervisor); color:white; padding:2px 8px; border-radius:10px;">${role==='super'?'مدير':'مشرف'}</small>`;
+        listenToAudit();
+        renderAdminUsers();
     }
-    return -1;
-  }
+    
+    activeDay = new Date().toISOString().split('T')[0];
+    document.getElementById('daySelect').value = activeDay;
+    activeShift = "وردية_1";
+    updateUserSelector();
+    loadContent();
+    initChat();
+    updateRecipientList();
+}
 
-  function getCurrentChunk(expr) {
-    const idx = lastIndexOfAnyOperator(expr);
-    return expr.slice(idx + 1);
-  }
+// باقي وظائف النظام الأصلية دون تعديل لضمان استقرار الميزات
+function logSystem(action, details) {
+    db.ref('system_audit').push({ user: currentUser, action: action, details: details, time: new Date().toLocaleString('ar-EG'), timestamp: firebase.database.ServerValue.TIMESTAMP });
+}
 
-  function replaceCurrentChunk(newChunk) {
-    const idx = lastIndexOfAnyOperator(data);
-    data = data.slice(0, idx + 1) + newChunk;
-  }
+function listenToAudit() {
+    db.ref('system_audit').limitToLast(50).on('value', snap => {
+        const logs = snap.val() || {};
+        document.getElementById('auditLogs').innerHTML = Object.values(logs).reverse().map(l => `<div class="log-row"><span>[${l.time}] <b>${l.user}</b></span><span>${l.action}: ${l.details}</span></div>`).join('');
+    });
+}
 
-  function canAddDot() {
-    const chunk = getCurrentChunk(data);
-    if (chunk === "" || chunk === "−") return true;
-    return !chunk.includes(".");
-  }
+function liveUpdate() {
+    let tp = 0, ts = 0;
+    document.querySelectorAll('#tbody tr').forEach(row => {
+        let l = parseFloat(row.cells[1].querySelector('input').value) || 0;
+        let s = parseFloat(row.cells[2].querySelector('input').value) || 0;
+        let r = l * s;
+        row.cells[3].innerText = r.toFixed(0);
+        tp += r; ts += s;
+    });
+    document.getElementById('sumTotal').innerText = tp.toFixed(0);
+    document.getElementById('sumSizes').innerText = ts.toFixed(1);
+    clearTimeout(window.saveT);
+    window.saveT = setTimeout(saveData, 1500);
+}
 
-  function canAddPercent() {
-    if (!data) return false;
-    return isDigit(data.slice(-1));
-  }
+function addRow(d = {name:'', l:0, s:0, line:1, note:''}) {
+    const r = document.getElementById('tbody').insertRow();
+    r.innerHTML = `<td><input type="text" value="${d.name}"></td><td><input type="number" value="${d.l}"></td><td><input type="number" value="${d.s}"></td><td style="font-weight:bold;">0</td><td><input type="text" value="${d.line}"></td><td><input type="text" value="${d.note}"></td><td class="noPrint"><button onclick="this.closest('tr').remove(); liveUpdate();" style="color:red; background:none; border:none; font-size:18px;">✖</button></td>`;
+    liveUpdate();
+}
 
-  function clearEntry() {
-    if (!data) return;
-    const last = data.slice(-1);
-    if (OPS.has(last)) {
-      data = data.slice(0, -1);
-      return;
-    }
-    const idx = lastIndexOfAnyOperator(data);
-    const prefix = data.slice(0, idx + 1);
-    let chunk = data.slice(idx + 1);
-    if (chunk.endsWith("%")) {
-      chunk = chunk.slice(0, -1);
-      data = prefix + chunk;
-      return;
-    }
-    chunk = chunk.slice(0, -1);
-    if (chunk === "" || chunk === "−" || chunk === "0.") {
-      data = prefix;
-      return;
-    }
-    data = prefix + chunk;
-  }
+function saveData() {
+    const role = users[currentUser]?.role;
+    if (currentUser !== activeUser && role !== 'super' && role !== 'supervisor') return;
+    let data = [];
+    document.querySelectorAll('#tbody tr').forEach(row => {
+        const name = row.cells[0].querySelector('input').value;
+        if(name.trim() !== "") data.push({ name, l: row.cells[1].querySelector('input').value, s: row.cells[2].querySelector('input').value, line: row.cells[4].querySelector('input').value, note: row.cells[5].querySelector('input').value });
+    });
+    db.ref(`archive/${activeDay}/${activeShift}/${activeUser}`).set(data);
+}
 
-  function toggleSign() {
-    if (!data) { data = "−"; updateDisplay(); return; }
-    const idx = lastIndexOfAnyOperator(data);
-    let chunk = data.slice(idx + 1);
-    if (chunk === "") {
-      data += "−";
-      updateDisplay();
-      return;
-    }
-    if (chunk.startsWith("−")) {
-      chunk = chunk.slice(1);
-      replaceCurrentChunk(chunk);
-      updateDisplay();
-      return;
-    }
-    replaceCurrentChunk("−" + chunk);
-    updateDisplay();
-  }
+function loadContent() {
+    document.getElementById('tbody').innerHTML = '';
+    db.ref(`archive/${activeDay}/${activeShift}/${activeUser}`).once('value', snap => {
+        let data = snap.val() || [];
+        if(data.length > 0) data.forEach(item => addRow(item)); else addRow();
+    });
+}
 
-  function appendNumberString(numStr) {
-    const chunk = getCurrentChunk(data);
-    if (chunk === "0" && !chunk.includes(".")) {
-      data = data.slice(0, -1) + numStr;
-    } else if (chunk === "" || chunk === "−") {
-      data += numStr;
-    } else {
-      data += numStr;
-    }
-    updateDisplay();
-  }
+function switchContext() {
+    activeUser = document.getElementById('userSelect').value;
+    activeDay = document.getElementById('daySelect').value;
+    activeShift = document.getElementById('shiftSelect').value;
+    loadContent();
+}
 
-  function handleInput(v) {
-    const lastChar = data.slice(-1);
-    if (v === "AC") { data = ""; expDiv.innerText = ""; resDiv.innerText = "0"; return; }
-    if (v === "C") { clearEntry(); updateDisplay(); return; }
-    if (v === "±") { toggleSign(); return; }
-    if (v === "⌫") { data = data.slice(0, -1); updateDisplay(); return; }
-    if (v === "=") {
-      const out = tryEvaluate(data);
-      if (out.ok) {
-        const formatted = formatNumber(out.value);
-        resDiv.innerText = formatted;
-        data = formatted;
-        expDiv.innerText = "";
-      } else {
-        resDiv.innerText = out.message || "خطأ";
-        data = "";
-        expDiv.innerText = "";
-      }
-      return;
-    }
-    if (v === "0.03") { appendNumberString("0.03"); return; }
-    if (/[0-9]/.test(v) || v === "00") {
-      const chunk = getCurrentChunk(data);
-      if (v === "00") {
-        if (chunk === "" || chunk === "−") { data += "0"; updateDisplay(); return; }
-      }
-      if (chunk === "0" && v === "0") return;
-      if (chunk === "0" && v !== "0" && v !== "00" && !chunk.includes(".")) {
-        data = data.slice(0, -1) + v;
-      } else {
-        data += v;
-      }
-      updateDisplay();
-      return;
-    }
-    if (v === ".") {
-      if (!canAddDot()) return;
-      const chunk = getCurrentChunk(data);
-      if (chunk === "" || chunk === "−") data += "0.";
-      else data += ".";
-      updateDisplay();
-      return;
-    }
-    if (v === "%") { if (!canAddPercent()) return; data += "%"; updateDisplay(); return; }
-    if (OPS.has(v)) {
-      if (!data) { if (v === "−") { data = "−"; updateDisplay(); } return; }
-      if (OPS.has(lastChar)) { data = data.slice(0, -1) + v; updateDisplay(); return; }
-      if (lastChar === ".") return;
-      data += v;
-      updateDisplay();
-      return;
-    }
-  }
+function renderAdminUsers() {
+    db.ref('users').on('value', snap => {
+        const all = snap.val() || {};
+        document.getElementById('usersList').innerHTML = Object.keys(all).filter(u => all[u].role === 'user').map(u => `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #eee;"><span>👤 <b>${u}</b></span><button onclick="deleteWorker('${u}')" style="color:red; border:none; background:none; cursor:pointer;">✖ حذف</button></div>`).join('');
+    });
+}
 
-  function tokenize(expr) {
-    const tokens = [];
-    let i = 0;
-    const peek = () => expr[i];
-    const next = () => expr[i++];
-    while (i < expr.length) {
-      const ch = peek();
-      if (ch === " ") { i++; continue; }
-      if (ch === "+") { tokens.push({type:"op", value:"+"}); i++; continue; }
-      if (ch === "×") { tokens.push({type:"op", value:"*"}); i++; continue; }
-      if (ch === "÷") { tokens.push({type:"op", value:"/"}); i++; continue; }
-      if (ch === "−") {
-        const prev = tokens[tokens.length - 1];
-        if (!prev || prev.type === "op") {
-          i++; let numStr = "-";
-          if (peek() === ".") numStr += "0";
-          while (i < expr.length && (isDigit(peek()) || peek() === ".")) numStr += next();
-          tokens.push({type:"num", value:Number(numStr)});
-        } else { tokens.push({type:"op", value:"-"}); i++; }
-        continue;
-      }
-      if (isDigit(ch) || ch === ".") {
-        let numStr = ""; if (ch === ".") numStr = "0";
-        while (i < expr.length && (isDigit(peek()) || peek() === ".")) numStr += next();
-        tokens.push({type:"num", value:Number(numStr)});
-        continue;
-      }
-      if (ch === "%") {
-        const prev = tokens[tokens.length - 1];
-        if (prev && prev.type === "num") prev.rawPercent = true;
-        i++; continue;
-      }
-      i++;
-    }
-    return applyCalculatorPercent(tokens);
-  }
+function addNewWorker() {
+    const n = document.getElementById('newWorkerName').value.trim();
+    const p = document.getElementById('newWorkerPass').value.trim();
+    if(n && p) { db.ref(`users/${n}`).set({ pass: btoa(p), role: 'user' }); logSystem("إضافة موظف", n); }
+}
 
-  function applyCalculatorPercent(tokens) {
-    for (let i = 0; i < tokens.length; i++) {
-      const t = tokens[i];
-      if (t.type === "num" && t.rawPercent) {
-        const opTok = tokens[i - 1], leftTok = tokens[i - 2], b = t.value / 100;
-        if (opTok && (opTok.value === "+" || opTok.value === "-") && leftTok && leftTok.type === "num") {
-          t.value = leftTok.value * b;
-        } else { t.value = b; }
-        delete t.rawPercent;
-      }
-    }
-    return tokens;
-  }
+function deleteWorker(n) { if(confirm(`حذف ${n}؟`)) { db.ref(`users/${n}`).remove(); logSystem("حذف موظف", n); } }
 
-  function toRPN(tokens) {
-    const out = [], stack = [], prec = { "+":1, "-":1, "*":2, "/":2 };
-    for (const t of tokens) {
-      if (t.type === "num") out.push(t);
-      else {
-        while (stack.length && prec[stack[stack.length-1].value] >= prec[t.value]) out.push(stack.pop());
-        stack.push(t);
-      }
-    }
-    while (stack.length) out.push(stack.pop());
-    return out;
-  }
+function updateUserSelector() {
+    const sel = document.getElementById('userSelect');
+    db.ref('users').once('value', snap => {
+        const u = snap.val() || {};
+        if(users[currentUser]?.role === 'super' || users[currentUser]?.role === 'supervisor') {
+            sel.innerHTML = Object.keys(u).map(x => `<option value="${x}" ${x===currentUser?'selected':''}>${x}</option>`).join('');
+        } else sel.innerHTML = `<option value="${currentUser}">${currentUser}</option>`;
+    });
+}
 
-  function evalRPN(rpn) {
-    const st = [];
-    for (const t of rpn) {
-      if (t.type === "num") st.push(t.value);
-      else {
-        const b = st.pop(), a = st.pop();
-        if (a === undefined || b === undefined) return NaN;
-        if (t.value === "+") st.push(a + b);
-        else if (t.value === "-") st.push(a - b);
-        else if (t.value === "*") st.push(a * b);
-        else if (t.value === "/") st.push(a / b);
-      }
-    }
-    return st[0];
-  }
+function toggleChat() { const box = document.getElementById('chatBox'); box.style.display = box.style.display === 'flex' ? 'none' : 'flex'; }
 
-  function tryEvaluate(expr) {
-    if (!expr) return { ok:false };
-    try {
-      const tokens = tokenize(expr);
-      const value = evalRPN(toRPN(tokens));
-      return isFinite(value) ? { ok:true, value } : { ok:false, message:"لا يمكن القسمة على 0" };
-    } catch (e) { return { ok:false }; }
-  }
+function initChat() {
+    db.ref('chats/global').limitToLast(30).on('value', snap => {
+        const msgDiv = document.getElementById('chatMessages'); msgDiv.innerHTML = '';
+        const data = snap.val() || {};
+        Object.values(data).forEach(m => {
+            if (m.to === 'all' || m.sender === currentUser || m.to === currentUser || users[currentUser]?.role === 'super' || users[currentUser]?.role === 'supervisor') {
+                const div = document.createElement('div');
+                div.className = `msg ${m.sender === currentUser ? 'sent' : 'received'}`;
+                div.innerHTML = `<b>${m.sender}:</b><br>${m.text}`;
+                msgDiv.appendChild(div);
+            }
+        });
+        msgDiv.scrollTop = msgDiv.scrollHeight;
+    });
+}
 
-  document.querySelectorAll("button").forEach(btn => {
-    btn.addEventListener("click", () => handleInput(btn.innerText.trim()));
-  });
+function sendChatMessage() {
+    const input = document.getElementById('chatMsgInput');
+    if(!input.value.trim()) return;
+    db.ref('chats/global').push({ sender: currentUser, to: document.getElementById('chatRecipient').value, text: input.value, timestamp: firebase.database.ServerValue.TIMESTAMP });
+    input.value = '';
+}
+
+function updateRecipientList() {
+    db.ref('users').once('value', snap => {
+        const u = snap.val() || {};
+        const sel = document.getElementById('chatRecipient');
+        sel.innerHTML = '<option value="all">📢 للكل</option>';
+        Object.keys(u).forEach(x => { if(x !== currentUser) sel.innerHTML += `<option value="${x}">👤 خاص لـ: ${x}</option>`; });
+    });
+}
+
+async function cloudBackup() {
+    const snap = await db.ref('archive').once('value');
+    await db.ref('public_backup/latest').set({ data: snap.val(), by: currentUser, at: firebase.database.ServerValue.TIMESTAMP });
+    Swal.fire('تم', 'رفع الأرشيف بنجاح', 'success');
+}
+
+async function cloudRestore() {
+    if(users[currentUser]?.role !== 'super') return;
+    const snap = await db.ref('public_backup/latest').once('value');
+    if(snap.val() && confirm('استعادة؟')) { await db.ref('archive').set(snap.val().data); loadContent(); }
+}
+
+function printReport() { window.print(); }
+function clearLogs() { if(confirm('مسح؟')) db.ref('system_audit').remove(); }
+function printLogs() { window.print(); }
 </script>
-
 </body>
 </html>
+
